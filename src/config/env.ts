@@ -1,19 +1,18 @@
-// This file is used to load environment variables from the .env file and make them available to the app
-const raw = {
-  storagePrefix: process.env.EXPO_PUBLIC_STORAGE_PREFIX,
-  passwordPepper: process.env.EXPO_PUBLIC_PASSWORD_PEPPER,
-};
+// This file is used to read environment variables from the .env file and validate them.
+const STORAGE_PREFIX_PATTERN = /^[A-Za-z0-9_]+$/;
 
-//a function that checks if an environment variable is defined, and throws an error if it is not
-function requireVar(name: string, value: string | undefined): string {
-    if(!value) {
-        throw new Error(`Missing env variable: ${name}, check your .env file or environment variables`);
-    }
-    return value;
+// Read the storage prefix from the environment variable and validate it
+function readStoragePrefix(): string {
+  const value = process.env.EXPO_PUBLIC_STORAGE_PREFIX;
+  if (!value || !STORAGE_PREFIX_PATTERN.test(value)) {
+    throw new Error(
+      'EXPO_PUBLIC_STORAGE_PREFIX is missing or invalid. Use letters, numbers and underscores only, set it in .env, then restart with: npx expo start -c'
+    );
+  }
+  return value;
 }
 
-//a constant object that contains all the required environment variables for the app to run
+// Export the environment variables as a constant object
 export const ENV = {
-    STORAGE_PREFIX: requireVar('EXPO_PUBLIC_STORAGE_PREFIX', raw.storagePrefix),
-    PASSWORD_PEPPER: requireVar('EXPO_PUBLIC_PASSWORD_PEPPER', raw.passwordPepper),
+  STORAGE_PREFIX: readStoragePrefix(),
 } as const;
