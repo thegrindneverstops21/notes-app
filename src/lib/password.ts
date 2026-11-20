@@ -2,8 +2,7 @@ import CryptoJS from "crypto-js";
 import * as Crypto from "expo-crypto";
 import { AUTH_RULES } from "../constants";
 
-// shortcut: iterations are capped by pure-JS speed on a phone. A real backend would use
-// a much higher count or Argon2. Documented limit, not a bug.
+// shortcut: iterations are capped by pure-JS speed on a phone.
 const BITS_PER_WORD = 32;
 
 // This function is used to convert a byte array to a hexadecimal string.
