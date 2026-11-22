@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Text } from "react-native";
+import { Pressable, Text } from "react-native";
 import { FormField } from "@/components/FormField";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
+import { FEEDBACK, PROBLEMS } from "@/constants/messages";
 import { useAuth } from "@/context/AuthContext";
+import { useOnboarding } from "@/context/OnboardingContext";
+import { useToast } from "@/context/ToastContext";
 import { useSubmit } from "@/hooks/useSubmit";
+import { PASSWORD_HINT } from "@/lib/validation";
 import { AUTH_MESSAGES, AuthError } from "@/services/authError";
 import { textStyles } from "@/theme/textStyles";
 import type { CredentialChanges, PublicUser } from "@/types";
-import { PASSWORD_HINT } from "@/lib/validation";
 
 type ProfileForm = {
   email: string;
@@ -28,8 +31,9 @@ function buildChanges(user: PublicUser, form: ProfileForm): CredentialChanges {
 
 export default function ProfileScreen() {
   const { user, updateProfile } = useAuth();
+  const { restart } = useOnboarding();
+  const { showToast } = useToast();
   const { error, busy, submit } = useSubmit();
-  const [saved, setSaved] = useState(false);
   const [form, setForm] = useState<ProfileForm>({
     email: user?.email ?? "",
     username: user?.username ?? "",
@@ -41,7 +45,6 @@ export default function ProfileScreen() {
     setForm((current) => ({ ...current, [key]: value }));
 
   async function handleSave() {
-    setSaved(false);
     const changes = user ? buildChanges(user, form) : {};
     const ok = await submit(async () => {
       if (Object.keys(changes).length === 0) {
@@ -50,13 +53,17 @@ export default function ProfileScreen() {
       await updateProfile(form.currentPassword, changes);
     });
     if (!ok) return;
-    setSaved(true);
+    showToast(FEEDBACK.PROFILE_UPDATED);
     setForm((current) => ({
       ...current,
       newPassword: "",
       currentPassword: "",
     }));
   }
+
+  const replayTour = () => {
+    restart().catch(() => showToast(PROBLEMS.STORAGE, "error"));
+  };
 
   return (
     <Screen>
@@ -84,10 +91,10 @@ export default function ProfileScreen() {
         secureTextEntry
       />
       {error ? <Text style={textStyles.error}>{error}</Text> : null}
-      {saved ? (
-        <Text style={textStyles.success}>{AUTH_MESSAGES.PROFILE_SAVED}</Text>
-      ) : null}
       <PrimaryButton label="Save changes" busy={busy} onPress={handleSave} />
+      <Pressable onPress={replayTour} accessibilityRole="button">
+        <Text style={textStyles.link}>Replay the tour</Text>
+      </Pressable>
     </Screen>
   );
 }
