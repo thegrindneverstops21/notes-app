@@ -1,8 +1,16 @@
 import type { ReactNode } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { COLORS } from "@/theme/colors";
+import { useThemedStyles, type Theme } from "@/theme";
+
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    scroll: { backgroundColor: t.colors.desk },
+    content: { padding: 24, paddingTop: 64 },
+  });
 
 export function Screen({ children }: { children: ReactNode }) {
+  const styles = useThemedStyles(makeStyles);
+
   return (
     <ScrollView
       style={styles.scroll}
@@ -13,8 +21,3 @@ export function Screen({ children }: { children: ReactNode }) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: { backgroundColor: COLORS.desk },
-  content: { padding: 24, paddingTop: 64 },
-});
