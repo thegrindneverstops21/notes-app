@@ -43,3 +43,16 @@ export type Note = {
   x: number;
   y: number;
 };
+
+// This type represents the sort order for a list of items.
+export type SortOrder = 'asc' | 'desc';
+
+// This type represents the input required for creating or updating a note.
+export type NoteInput = {
+  categoryId: string;
+  title?: string;
+  body: string;
+};
+
+// This type represents the changes that can be made to a note, which is a partial version of NoteInput.
+export type NoteChanges = Partial<NoteInput>;
