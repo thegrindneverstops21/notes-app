@@ -9,9 +9,10 @@ import { useAuth } from "@/context/AuthContext";
 import { useSubmit } from "@/hooks/useSubmit";
 import { useUsernameSuggestions } from "@/hooks/useUsernameSuggestions";
 import { PASSWORD_HINT } from "@/lib/validation";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 
 export default function RegisterScreen() {
+  const textStyles = useTextStyles();
   const { signUp } = useAuth();
   const { error, busy, submit } = useSubmit();
   const [email, setEmail] = useState("");
