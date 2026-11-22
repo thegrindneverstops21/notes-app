@@ -11,7 +11,7 @@ import {
 import { Animated, StyleSheet, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TOAST_DURATION_MS } from "../constants";
-import { COLORS } from "../theme/colors";
+import { useThemedStyles, type Theme } from "../theme";
 
 type ToastKind = "success" | "error";
 type Toast = { id: number; kind: ToastKind; message: string };
@@ -23,6 +23,7 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 function ToastBanner({ toast }: { toast: Toast }) {
   const insets = useSafeAreaInsets();
+  const styles = useThemedStyles(makeStyles);
   const [opacity] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -79,15 +80,16 @@ export function useToast(): ToastContextValue {
   return value;
 }
 
-const styles = StyleSheet.create({
-  banner: {
-    position: "absolute",
-    left: 24,
-    right: 24,
-    backgroundColor: COLORS.ink,
-    padding: 14,
-    pointerEvents: "none",
-  },
-  error: { backgroundColor: COLORS.error },
-  text: { color: COLORS.card },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    banner: {
+      position: "absolute",
+      left: 24,
+      right: 24,
+      backgroundColor: t.colors.ink,
+      padding: 14,
+      pointerEvents: "none",
+    },
+    error: { backgroundColor: t.colors.error },
+    text: { color: t.colors.card, fontFamily: t.fonts.bodyMedium },
+  });

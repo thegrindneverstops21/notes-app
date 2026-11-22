@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { Point } from "../lib/canvas";
 import {
   createCategory,
   deleteCategory,
@@ -17,6 +18,7 @@ import {
   createNote,
   deleteNote,
   listNotes,
+  moveNote as persistMove,
   updateNote,
 } from "../services/noteService";
 import type { Category, Note, NoteChanges, NoteInput } from "../types";
@@ -68,7 +70,10 @@ function createActions(userId: string, reload: Reload) {
 }
 
 type NotesContextValue = NotesState &
-  ReturnType<typeof createActions> & { retry: () => Promise<void> };
+  ReturnType<typeof createActions> & {
+    retry: () => Promise<void>;
+    moveNote: (id: string, position: Point) => Promise<void>;
+  };
 
 const NotesContext = createContext<NotesContextValue | null>(null);
 
@@ -94,6 +99,26 @@ export function NotesProvider({
     }
   }, [reload]);
 
+  // Optimistic: the card moves on screen first, then the position is saved.
+  // If saving fails, re-read from storage so the screen matches what is saved.
+  const moveNote = useCallback(
+    async (id: string, position: Point) => {
+      setState((current) => ({
+        ...current,
+        notes: current.notes.map((note) =>
+          note.id === id ? { ...note, ...position } : note,
+        ),
+      }));
+      try {
+        await persistMove(userId, id, position);
+      } catch (error) {
+        await reload().catch(() => undefined);
+        throw error;
+      }
+    },
+    [userId, reload],
+  );
+
   useEffect(() => {
     let cancelled = false;
     fetchAll(userId)
@@ -109,8 +134,8 @@ export function NotesProvider({
   }, [userId]);
 
   const value = useMemo(
-    () => ({ ...state, retry, ...createActions(userId, reload) }),
-    [state, retry, userId, reload],
+    () => ({ ...state, retry, moveNote, ...createActions(userId, reload) }),
+    [state, retry, moveNote, userId, reload],
   );
 
   return (
