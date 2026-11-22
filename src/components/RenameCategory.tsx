@@ -3,7 +3,7 @@ import { Text } from "react-native";
 import { FormField } from "@/components/FormField";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useSubmit } from "@/hooks/useSubmit";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 import type { Category } from "@/types";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
 };
 
 export function RenameCategory({ category, onRename }: Props) {
+  const textStyles = useTextStyles();
   const [name, setName] = useState(category.name);
   const { error, busy, submit } = useSubmit();
   const unchanged = name.trim() === category.name;
