@@ -1,7 +1,8 @@
-import { AUTH_RULES } from "../constants";
+import { AUTH_RULES, DATA_RULES } from "../constants";
 import type { CredentialChanges, RegisterInput } from "../types";
 
-// Validation functions for user input. These are used both in the frontend and backend to ensure consistent validation rules.
+// Validation functions for user input. 
+// These are used both in the frontend and backend to ensure consistent validation rules.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_PATTERN = /^[A-Za-z0-9_]+$/;
 
@@ -20,14 +21,14 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
-// Validation functions for email. Each function returns null if the input is valid, or an error message string if invalid.
+// Validation functions for email.
 export function validateEmail(email: string): string | null {
   return EMAIL_PATTERN.test(email.trim())
     ? null
     : "Enter a valid email address.";
 }
 
-// Validation functions for username. Each function returns null if the input is valid, or an error message string if invalid.
+// Validation functions for username. 
 export function validateUsername(username: string): string | null {
   const value = username.trim();
   const { USERNAME_MIN, USERNAME_MAX } = AUTH_RULES;
@@ -41,7 +42,7 @@ export function validateUsername(username: string): string | null {
 }
 
 
-// Validation functions for password. Each function returns null if the input is valid, or an error message string if invalid.
+// Validation functions for password. 
 export function validatePassword(password: string): string | null {
   if (password.length < AUTH_RULES.PASSWORD_MIN) {
     return `Password must be at least ${AUTH_RULES.PASSWORD_MIN} characters.`;
@@ -52,7 +53,7 @@ export function validatePassword(password: string): string | null {
   return missing.length === 0 ? null : `Password needs ${joinList(missing)}.`;
 }
 
-// Validation functions for user registration input. Each function returns null if the input is valid, or an error message string if invalid.
+// Validation functions for user registration input.
 export function validateRegisterInput(input: RegisterInput): string | null {
   return (
     validateEmail(input.email) ??
@@ -61,7 +62,7 @@ export function validateRegisterInput(input: RegisterInput): string | null {
   );
 }
 
-// Validation functions for user profile changes. Each function returns null if the input is valid, or an error message string if invalid.
+// Validation functions for user profile changes.
 export function validateChanges(changes: CredentialChanges): string | null {
   const checks = [
     changes.email === undefined ? null : validateEmail(changes.email),
@@ -71,4 +72,18 @@ export function validateChanges(changes: CredentialChanges): string | null {
       : validatePassword(changes.newPassword),
   ];
   return checks.find((message) => message !== null) ?? null;
+}
+
+// Validation functions for category names. 
+export function validateCategoryName(name: string): string | null {
+  const length = name.trim().length;
+  if (length < 1 || length > DATA_RULES.CATEGORY_NAME_MAX) {
+    return `Category name must be 1 to ${DATA_RULES.CATEGORY_NAME_MAX} characters.`;
+  }
+  return null;
+}
+
+// Validation functions for note body.
+export function validateNoteBody(body: string): string | null {
+  return body.trim().length > 0 ? null : 'Write something in the note before saving.';
 }
