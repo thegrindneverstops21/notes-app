@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { Animated, StyleSheet, type DimensionValue } from "react-native";
-import { COLORS } from "@/theme/colors";
+import { useThemedStyles, type Theme } from "@/theme";
 
 const MIN_OPACITY = 0.4;
 const PULSE_MS = 700;
 
 type Props = { height: number; width?: DimensionValue };
 
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    block: { backgroundColor: t.colors.border, marginBottom: 12 },
+  });
+
 export function Skeleton({ height, width = "100%" }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const [opacity] = useState(() => new Animated.Value(MIN_OPACITY));
 
   useEffect(() => {
@@ -31,7 +37,3 @@ export function Skeleton({ height, width = "100%" }: Props) {
 
   return <Animated.View style={[styles.block, { height, width, opacity }]} />;
 }
-
-const styles = StyleSheet.create({
-  block: { backgroundColor: COLORS.border, marginBottom: 12 },
-});
