@@ -4,8 +4,8 @@ import { CategoryPicker } from "@/components/CategoryPicker";
 import { FormField } from "@/components/FormField";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { useSubmit } from "@/hooks/useSubmit";
-import { COLORS } from "@/theme/colors";
-import { textStyles } from "@/theme/textStyles";
+import { useThemedStyles, type Theme } from "@/theme";
+import { useTextStyles } from "@/theme/useTextStyles";
 import type { Category } from "@/types";
 
 export type NoteFormValues = {
@@ -22,6 +22,15 @@ type Props = {
   onDelete?: () => void;
 };
 
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    label: {
+      color: t.colors.meta,
+      fontFamily: t.fonts.body,
+      marginBottom: 6,
+    },
+  });
+
 export function NoteForm({
   initial,
   categories,
@@ -29,6 +38,8 @@ export function NoteForm({
   onSubmit,
   onDelete,
 }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const textStyles = useTextStyles();
   const [values, setValues] = useState(initial);
   const { error, busy, submit } = useSubmit();
   const setField = (key: keyof NoteFormValues) => (value: string) =>
@@ -69,7 +80,3 @@ export function NoteForm({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  label: { color: COLORS.meta, marginBottom: 6 },
-});

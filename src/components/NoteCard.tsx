@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { formatDate } from "@/lib/format";
-import { COLORS } from "@/theme/colors";
+import { useThemedStyles, type Theme } from "@/theme";
 import type { Note } from "@/types";
 
 type Props = { note: Note; categoryName?: string };
@@ -15,8 +15,37 @@ function metaLine(note: Note, categoryName?: string): string {
   return parts.filter(Boolean).join(" · ");
 }
 
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: t.colors.card,
+      borderColor: t.colors.border,
+      borderWidth: 1,
+      padding: 14,
+      marginBottom: 12,
+      ...t.shadows.rest,
+    },
+    title: {
+      color: t.colors.ink,
+      fontFamily: t.fonts.title,
+      fontSize: 18,
+      marginBottom: 4,
+    },
+    body: {
+      color: t.colors.ink,
+      fontFamily: t.fonts.body,
+      marginBottom: 8,
+    },
+    meta: {
+      color: t.colors.meta,
+      fontFamily: t.fonts.body,
+      fontSize: 12,
+    },
+  });
+
 export function NoteCard({ note, categoryName }: Props) {
   const router = useRouter();
+  const styles = useThemedStyles(makeStyles);
 
   return (
     <Pressable
@@ -34,21 +63,3 @@ export function NoteCard({ note, categoryName }: Props) {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.card,
-    borderColor: COLORS.border,
-    borderWidth: 1,
-    padding: 14,
-    marginBottom: 12,
-  },
-  title: {
-    color: COLORS.ink,
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  body: { color: COLORS.ink, marginBottom: 8 },
-  meta: { color: COLORS.meta, fontSize: 12 },
-});
