@@ -34,7 +34,7 @@ export default function LoginScreen() {
         busy={busy}
         onPress={() => submit(() => signIn(identifier, password))}
       />
-      <Link href="/(auth)/register" style={textStyles.link}>
+      <Link href="/register" style={textStyles.link}>
         Create an account
       </Link>
     </Screen>
