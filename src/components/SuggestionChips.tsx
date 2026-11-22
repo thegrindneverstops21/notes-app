@@ -1,9 +1,24 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { COLORS } from "@/theme/colors";
+import { useThemedStyles, type Theme } from "@/theme";
 
 type Props = { suggestions: string[]; onPick: (name: string) => void };
 
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    row: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
+    chip: {
+      borderColor: t.colors.border,
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: t.colors.card,
+    },
+    label: { color: t.colors.ink, fontFamily: t.fonts.body },
+  });
+
 export function SuggestionChips({ suggestions, onPick }: Props) {
+  const styles = useThemedStyles(makeStyles);
   if (suggestions.length === 0) return null;
 
   return (
@@ -22,16 +37,3 @@ export function SuggestionChips({ suggestions, onPick }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
-  chip: {
-    borderColor: COLORS.border,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: COLORS.card,
-  },
-  label: { color: COLORS.ink },
-});
