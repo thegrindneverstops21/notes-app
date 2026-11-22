@@ -5,10 +5,28 @@ import { Screen } from "@/components/Screen";
 import { ONBOARDING_STEPS } from "@/constants/onboarding";
 import { useOnboarding } from "@/context/OnboardingContext";
 import { useSubmit } from "@/hooks/useSubmit";
-import { COLORS } from "@/theme/colors";
-import { textStyles } from "@/theme/textStyles";
+import { useThemedStyles, type Theme } from "@/theme";
+import { useTextStyles } from "@/theme/useTextStyles";
+
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    progress: {
+      color: t.colors.meta,
+      fontFamily: t.fonts.body,
+      marginBottom: 8,
+    },
+    body: {
+      color: t.colors.ink,
+      fontFamily: t.fonts.body,
+      fontSize: 16,
+      lineHeight: 24,
+      marginBottom: 24,
+    },
+  });
 
 export default function OnboardingScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const textStyles = useTextStyles();
   const { complete } = useOnboarding();
   const { error, busy, submit } = useSubmit();
   const [index, setIndex] = useState(0);
@@ -40,8 +58,3 @@ export default function OnboardingScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  progress: { color: COLORS.meta, marginBottom: 8 },
-  body: { color: COLORS.ink, fontSize: 16, lineHeight: 24, marginBottom: 24 },
-});

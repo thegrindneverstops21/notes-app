@@ -10,7 +10,7 @@ import { useToast } from "@/context/ToastContext";
 import { useSubmit } from "@/hooks/useSubmit";
 import { PASSWORD_HINT } from "@/lib/validation";
 import { AUTH_MESSAGES, AuthError } from "@/services/authError";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 import type { CredentialChanges, PublicUser } from "@/types";
 
 type ProfileForm = {
@@ -30,6 +30,7 @@ function buildChanges(user: PublicUser, form: ProfileForm): CredentialChanges {
 }
 
 export default function ProfileScreen() {
+  const textStyles = useTextStyles();
   const { user, updateProfile } = useAuth();
   const { restart } = useOnboarding();
   const { showToast } = useToast();
