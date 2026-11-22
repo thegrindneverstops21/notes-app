@@ -7,14 +7,14 @@ import { Screen } from "@/components/Screen";
 import { FEEDBACK } from "@/constants/messages";
 import { useNotes } from "@/context/NotesContext";
 import { useToast } from "@/context/ToastContext";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 
 function NewNoteContent() {
   const router = useRouter();
   const { showToast } = useToast();
   const { categoryId } = useLocalSearchParams<{ categoryId?: string }>();
   const { categories, addNote } = useNotes();
-
+  const textStyles = useTextStyles();
   if (categories.length === 0) {
     return (
       <Screen>

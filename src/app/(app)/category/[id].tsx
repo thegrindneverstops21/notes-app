@@ -11,7 +11,7 @@ import { useNotes } from "@/context/NotesContext";
 import { useToast } from "@/context/ToastContext";
 import { confirmDestructive } from "@/lib/confirm";
 import { DATA_MESSAGES } from "@/services/dataError";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 
 function deleteMessage(count: number): string {
   if (count === 0) return "This category is empty. This cannot be undone.";
@@ -25,7 +25,7 @@ function CategoryContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { categories, notes, renameCategory, removeCategory } = useNotes();
   const category = categories.find((candidate) => candidate.id === id);
-
+  const textStyles = useTextStyles();
   if (!category) {
     return (
       <Screen>
