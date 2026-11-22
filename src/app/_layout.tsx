@@ -1,9 +1,22 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Stack, type ErrorBoundaryProps } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { ErrorState } from "@/components/ErrorState";
+import { Screen } from "@/components/Screen";
+import { PROBLEMS } from "@/constants/messages";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ToastProvider } from "@/context/ToastContext";
 
 SplashScreen.preventAutoHideAsync();
+
+// Catches anything that throws while rendering, instead of a red crash screen.
+export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+  return (
+    <Screen>
+      <ErrorState message={PROBLEMS.CRASH} onRetry={retry} />
+    </Screen>
+  );
+}
 
 function RootNavigator() {
   const { status } = useAuth();
@@ -30,7 +43,9 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootNavigator />
+      <ToastProvider>
+        <RootNavigator />
+      </ToastProvider>
     </AuthProvider>
   );
 }
