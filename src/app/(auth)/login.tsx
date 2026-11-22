@@ -6,9 +6,10 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 import { Screen } from "@/components/Screen";
 import { useAuth } from "@/context/AuthContext";
 import { useSubmit } from "@/hooks/useSubmit";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 
 export default function LoginScreen() {
+  const textStyles = useTextStyles();
   const { signIn } = useAuth();
   const { error, busy, submit } = useSubmit();
   const [identifier, setIdentifier] = useState("");
