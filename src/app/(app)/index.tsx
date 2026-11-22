@@ -1,50 +1,103 @@
-import { Text } from "react-native";
-import { Link, useRouter } from "expo-router";
-import { CategoryCreator } from "@/components/CategoryCreator";
-import { CategoryList } from "@/components/CategoryList";
+import { useState } from "react";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { GestureDetector } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
+import { useRouter } from "expo-router";
+import { CanvasCard } from "@/components/CanvasCard";
+import { CornerMenu } from "@/components/CornerMenu";
 import { EmptyState } from "@/components/EmptyState";
+import { LibrarySheet } from "@/components/LibrarySheet";
 import { NotesGate } from "@/components/NotesGate";
-import { NotesView } from "@/components/NotesView";
-import { PrimaryButton } from "@/components/PrimaryButton";
-import { Screen } from "@/components/Screen";
+import { ThumbPill } from "@/components/ThumbPill";
+import { PROBLEMS } from "@/constants/messages";
 import { useAuth } from "@/context/AuthContext";
 import { useNotes } from "@/context/NotesContext";
-import { textStyles } from "@/theme/textStyles";
+import { useOnboarding } from "@/context/OnboardingContext";
+import { useToast } from "@/context/ToastContext";
+import { useCanvasCamera } from "@/hooks/useCanvasCamera";
+import { useThemedStyles, type Theme } from "@/theme";
+
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: t.colors.desk },
+    world: StyleSheet.absoluteFill,
+    empty: {
+      ...StyleSheet.absoluteFill,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 40,
+      pointerEvents: "none",
+    },
+  });
 
 function HomeContent() {
   const router = useRouter();
-  const { user, signOut } = useAuth();
-  const { categories, notes } = useNotes();
+  const styles = useThemedStyles(makeStyles);
+  const { width, height } = useWindowDimensions();
+  const { signOut } = useAuth();
+  const { notes, categories, moveNote } = useNotes();
+  const { restart } = useOnboarding();
+  const { showToast } = useToast();
+  const camera = useCanvasCamera();
+  const [libraryOpen, setLibraryOpen] = useState(false);
+
+  const nameOf = (id: string) =>
+    categories.find((category) => category.id === id)?.name;
+
+  const handleMove = (id: string, x: number, y: number) => {
+    moveNote(id, { x, y }).catch(() => showToast(PROBLEMS.STORAGE, "error"));
+  };
+
+  const handleOpen = (id: string) =>
+    router.push({ pathname: "/note/[id]", params: { id } });
+
+  const handleReplay = () => {
+    restart().catch(() => showToast(PROBLEMS.STORAGE, "error"));
+  };
 
   return (
-    <Screen>
-      <Text style={textStyles.title}>Hello, {user?.username}</Text>
-      <CategoryCreator />
-      {categories.length === 0 ? (
-        <EmptyState
-          title="No categories"
-          message="Add a category above to start taking notes."
-        />
-      ) : (
-        <>
-          <CategoryList categories={categories} notes={notes} />
-          <PrimaryButton
-            label="New note"
-            onPress={() => router.push("/note/new")}
+    <View style={styles.root}>
+      <GestureDetector gesture={camera.gesture}>
+        <View style={{ width, height }}>
+          <Animated.View style={[styles.world, camera.style]}>
+            {notes.map((note) => (
+              <CanvasCard
+                key={note.id}
+                note={note}
+                categoryName={nameOf(note.categoryId)}
+                scale={camera.scale}
+                onMove={handleMove}
+                onOpen={handleOpen}
+              />
+            ))}
+          </Animated.View>
+        </View>
+      </GestureDetector>
+
+      {notes.length === 0 ? (
+        <View style={styles.empty}>
+          <EmptyState
+            title="Your desk is empty"
+            message="Tap NEW CARD to add your first note."
           />
-        </>
-      )}
-      <NotesView
-        notes={notes}
-        categories={categories}
-        emptyTitle="No notes yet"
-        emptyMessage="Your notes will show up here."
+        </View>
+      ) : null}
+
+      <CornerMenu
+        onProfile={() => router.push("/profile")}
+        onReplay={handleReplay}
+        onSignOut={signOut}
       />
-      <Link href="/profile" style={textStyles.link}>
-        Edit profile
-      </Link>
-      <PrimaryButton label="Sign out" onPress={signOut} />
-    </Screen>
+      <ThumbPill
+        onSearch={() => setLibraryOpen(true)}
+        onNewCard={() => router.push("/note/new")}
+        onRecenter={camera.recenter}
+        onSwipeUp={() => setLibraryOpen(true)}
+      />
+      {libraryOpen ? (
+        <LibrarySheet onClose={() => setLibraryOpen(false)} />
+      ) : null}
+    </View>
   );
 }
 
