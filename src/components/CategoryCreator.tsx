@@ -6,9 +6,10 @@ import { FEEDBACK } from "@/constants/messages";
 import { useNotes } from "@/context/NotesContext";
 import { useToast } from "@/context/ToastContext";
 import { useSubmit } from "@/hooks/useSubmit";
-import { textStyles } from "@/theme/textStyles";
+import { useTextStyles } from "@/theme/useTextStyles";
 
 export function CategoryCreator() {
+  const textStyles = useTextStyles();
   const { addCategory } = useNotes();
   const { showToast } = useToast();
   const { error, busy, submit } = useSubmit();
