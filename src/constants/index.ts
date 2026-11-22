@@ -36,3 +36,18 @@ export const DEFAULT_CATEGORY_NAMES = ["Work", "Study", "Personal"] as const;
 
 // This constant defines the duration for which toast notifications are displayed in the app, in milliseconds.
 export const TOAST_DURATION_MS = 3000;
+
+// This constant object is used to define the dimensions and layout of the canvas in the app.
+export const CANVAS = {
+  CARD_WIDTH: 168,
+  SLOT_GAP: 16,
+  SLOT_ROW_HEIGHT: 170,
+  SLOT_COLUMNS: 2,
+  HOME_X: 24,
+  HOME_Y: 96,
+  MIN_SCALE: 0.4,
+  MAX_SCALE: 2,
+  LONG_PRESS_MS: 200,
+  SWIPE_UP_DISTANCE: 48,
+  SWIPE_UP_VELOCITY: 800,
+} as const;
