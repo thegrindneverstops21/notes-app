@@ -1,4 +1,10 @@
 import { STORAGE_KEYS } from "../constants";
+import {
+  isAtOrigin,
+  nextFreeSlot,
+  spreadStackedNotes,
+  type Point,
+} from "../lib/canvas";
 import { newId } from "../lib/id";
 import { readJson, updateJson } from "../lib/storage";
 import { validateNoteBody } from "../lib/validation";
@@ -6,8 +12,12 @@ import type { Note, NoteChanges, NoteInput } from "../types";
 import { listCategories } from "./categoryService";
 import { DATA_MESSAGES, DataError } from "./dataError";
 
-export function listNotes(userId: string): Promise<Note[]> {
-  return readJson<Note[]>(STORAGE_KEYS.notesFor(userId), []);
+export async function listNotes(userId: string): Promise<Note[]> {
+  const key = STORAGE_KEYS.notesFor(userId);
+  const notes = await readJson<Note[]>(key, []);
+  // Two or more cards at 0,0 means they were saved before positions existed.
+  if (notes.filter(isAtOrigin).length < 2) return notes;
+  return updateJson<Note[]>(key, [], spreadStackedNotes);
 }
 
 function cleanTitle(title: string | undefined): string | undefined {
@@ -43,20 +53,26 @@ export async function createNote(
   input: NoteInput,
 ): Promise<Note> {
   await assertValidChanges(userId, input);
-  const note: Note = {
-    id: newId(),
-    categoryId: input.categoryId,
-    title: cleanTitle(input.title),
-    body: input.body.trim(),
-    createdAt: new Date().toISOString(),
-    x: 0,
-    y: 0,
-  };
-  await updateJson<Note[]>(STORAGE_KEYS.notesFor(userId), [], (notes) => [
-    ...notes,
-    note,
-  ]);
-  return note;
+  const id = newId();
+  const createdAt = new Date().toISOString();
+  const notes = await updateJson<Note[]>(
+    STORAGE_KEYS.notesFor(userId),
+    [],
+    (current) => [
+      ...current,
+      {
+        id,
+        categoryId: input.categoryId,
+        title: cleanTitle(input.title),
+        body: input.body.trim(),
+        createdAt,
+        ...nextFreeSlot(current),
+      },
+    ],
+  );
+  const created = notes.find((note) => note.id === id);
+  if (!created) throw new DataError("NOT_FOUND", DATA_MESSAGES.NOTE_NOT_FOUND);
+  return created;
 }
 
 function applyChanges(note: Note, changes: NoteChanges): Note {
@@ -86,6 +102,25 @@ export async function updateNote(
   const updated = notes.find((note) => note.id === noteId);
   if (!updated) throw new DataError("NOT_FOUND", DATA_MESSAGES.NOTE_NOT_FOUND);
   return updated;
+}
+
+// Moving a card is not an edit, so updatedAt stays untouched.
+export async function moveNote(
+  userId: string,
+  noteId: string,
+  position: Point,
+): Promise<void> {
+  const notes = await updateJson<Note[]>(
+    STORAGE_KEYS.notesFor(userId),
+    [],
+    (current) =>
+      current.map((note) =>
+        note.id === noteId ? { ...note, x: position.x, y: position.y } : note,
+      ),
+  );
+  if (!notes.some((note) => note.id === noteId)) {
+    throw new DataError("NOT_FOUND", DATA_MESSAGES.NOTE_NOT_FOUND);
+  }
 }
 
 export async function deleteNote(
