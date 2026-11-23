@@ -11,4 +11,8 @@ export const ONBOARDING_STEPS = [
     title: "Find things fast",
     body: "Search matches any word in a title or a card. Sort by date added, newest or oldest first.",
   },
+  {
+    title: "Checklists",
+    body: "Start a line with - or [] and it becomes a checkbox. Tick items off and they get crossed out. Zoom the desk out to see how many are done.",
+  },
 ] as const;
