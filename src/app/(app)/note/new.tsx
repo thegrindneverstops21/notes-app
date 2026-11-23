@@ -1,3 +1,5 @@
+import { StyleSheet } from "react-native";
+import Animated from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { EmptyState } from "@/components/EmptyState";
 import { NoteEditor, type EditorValues } from "@/components/NoteEditor";
@@ -6,12 +8,15 @@ import { Screen } from "@/components/Screen";
 import { FEEDBACK } from "@/constants/messages";
 import { useNotes } from "@/context/NotesContext";
 import { useToast } from "@/context/ToastContext";
+import { useZoomPage } from "@/hooks/useZoomPage";
 
 function NewNoteContent() {
   const router = useRouter();
+  const zoom = useZoomPage();
   const { showToast } = useToast();
   const { categoryId } = useLocalSearchParams<{ categoryId?: string }>();
   const { categories, addNote } = useNotes();
+  const goBack = () => zoom.close(() => router.back());
 
   if (categories.length === 0) {
     return (
@@ -32,16 +37,18 @@ function NewNoteContent() {
   async function handleSave(values: EditorValues) {
     await addNote(values);
     showToast(FEEDBACK.NOTE_SAVED);
-    router.back();
+    goBack();
   }
 
   return (
-    <NoteEditor
-      initial={{ categoryId: startCategory, title: "", body: "" }}
-      categories={categories}
-      onSave={handleSave}
-      onClose={() => router.back()}
-    />
+    <Animated.View style={[styles.fill, zoom.style]}>
+      <NoteEditor
+        initial={{ categoryId: startCategory, title: "", body: "" }}
+        categories={categories}
+        onSave={handleSave}
+        onClose={goBack}
+      />
+    </Animated.View>
   );
 }
 
@@ -52,3 +59,5 @@ export default function NewNoteScreen() {
     </NotesGate>
   );
 }
+
+const styles = StyleSheet.create({ fill: { flex: 1 } });
