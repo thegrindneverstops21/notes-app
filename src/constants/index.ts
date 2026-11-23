@@ -52,3 +52,14 @@ export const CANVAS = {
   SWIPE_UP_DISTANCE: 48,
   SWIPE_UP_VELOCITY: 800,
 } as const;
+
+// This constant object is used to define the zoom animation when a card opens into its editor page.
+export const ZOOM = {
+  IN_MS: 280,
+  OUT_MS: 200,
+  DEFAULT_SCALE: 0.92,
+  MIN_SCALE: 0.15,
+  MAX_SCALE: 0.95,
+  NEW_CARD_WIDTH: 160,
+  NEW_CARD_BOTTOM: 72,
+} as const;
