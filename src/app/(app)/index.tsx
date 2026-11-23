@@ -16,6 +16,7 @@ import { useOnboarding } from "@/context/OnboardingContext";
 import { useToast } from "@/context/ToastContext";
 import { useCanvasCamera } from "@/hooks/useCanvasCamera";
 import { useThemedStyles, type Theme } from "@/theme";
+import { cardOrigin, newCardOrigin } from "@/lib/canvas";
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
@@ -48,8 +49,23 @@ function HomeContent() {
     moveNote(id, { x, y }).catch(() => showToast(PROBLEMS.STORAGE, "error"));
   };
 
-  const handleOpen = (id: string) =>
-    router.push({ pathname: "/note/[id]", params: { id } });
+  // The page zooms out of the tapped card, so it needs to know where that card is on screen.
+  const handleOpen = (id: string) => {
+    const note = notes.find((candidate) => candidate.id === id);
+    const position = {
+      x: camera.x.get(),
+      y: camera.y.get(),
+      scale: camera.scale.get(),
+    };
+    const origin = note ? cardOrigin(note, position, { width, height }) : {};
+    router.push({ pathname: "/note/[id]", params: { id, ...origin } });
+  };
+
+  const handleNewCard = () =>
+    router.push({
+      pathname: "/note/new",
+      params: newCardOrigin({ width, height }),
+    });
 
   const handleReplay = () => {
     restart().catch(() => showToast(PROBLEMS.STORAGE, "error"));
@@ -90,7 +106,7 @@ function HomeContent() {
       />
       <ThumbPill
         onSearch={() => setLibraryOpen(true)}
-        onNewCard={() => router.push("/note/new")}
+        onNewCard={handleNewCard}
         onRecenter={camera.recenter}
         onSwipeUp={() => setLibraryOpen(true)}
       />
