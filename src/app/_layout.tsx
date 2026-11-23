@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { FONTS, useTheme } from "@/theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -57,10 +58,10 @@ function RootNavigator() {
         contentStyle: { backgroundColor: colors.desk },
       }}
     >
-      <Stack.Protected guard={!isSignedIn}>
+      <Stack.Protected guard={!isSignedIn} redirectTo="/">
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
-      <Stack.Protected guard={isSignedIn}>
+      <Stack.Protected guard={isSignedIn} redirectTo="/login">
         <Stack.Screen name="(app)" />
       </Stack.Protected>
     </Stack>
@@ -70,12 +71,14 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <ToastProvider>
-          <StatusBar style="auto" />
-          <RootNavigator />
-        </ToastProvider>
-      </AuthProvider>
+      <KeyboardProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <StatusBar style="auto" />
+            <RootNavigator />
+          </ToastProvider>
+        </AuthProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }
