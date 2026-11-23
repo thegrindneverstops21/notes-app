@@ -1,26 +1,24 @@
-import { Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { EmptyState } from "@/components/EmptyState";
-import { NoteForm, type NoteFormValues } from "@/components/NoteForm";
+import { NoteEditor, type EditorValues } from "@/components/NoteEditor";
 import { NotesGate } from "@/components/NotesGate";
 import { Screen } from "@/components/Screen";
 import { FEEDBACK } from "@/constants/messages";
 import { useNotes } from "@/context/NotesContext";
 import { useToast } from "@/context/ToastContext";
-import { useTextStyles } from "@/theme/useTextStyles";
 
 function NewNoteContent() {
   const router = useRouter();
   const { showToast } = useToast();
   const { categoryId } = useLocalSearchParams<{ categoryId?: string }>();
   const { categories, addNote } = useNotes();
-  const textStyles = useTextStyles();
+
   if (categories.length === 0) {
     return (
       <Screen>
         <EmptyState
           title="No categories"
-          message="Add a category on the home screen first, then come back."
+          message="Add a category from the library first, then come back."
         />
       </Screen>
     );
@@ -31,22 +29,19 @@ function NewNoteContent() {
     categories[0]?.id ??
     "";
 
-  async function handleCreate(values: NoteFormValues) {
+  async function handleSave(values: EditorValues) {
     await addNote(values);
     showToast(FEEDBACK.NOTE_SAVED);
     router.back();
   }
 
   return (
-    <Screen>
-      <Text style={textStyles.title}>New note</Text>
-      <NoteForm
-        initial={{ categoryId: startCategory, title: "", body: "" }}
-        categories={categories}
-        submitLabel="Save note"
-        onSubmit={handleCreate}
-      />
-    </Screen>
+    <NoteEditor
+      initial={{ categoryId: startCategory, title: "", body: "" }}
+      categories={categories}
+      onSave={handleSave}
+      onClose={() => router.back()}
+    />
   );
 }
 
