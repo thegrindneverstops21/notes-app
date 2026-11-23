@@ -60,5 +60,5 @@ export function useCanvasCamera() {
     scale.set(withSpring(1));
   };
 
-  return { gesture, style, scale, recenter };
+  return { gesture, style, scale, x, y, recenter };
 }
