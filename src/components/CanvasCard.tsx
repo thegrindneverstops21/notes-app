@@ -7,6 +7,7 @@ import {
   useTapGesture,
 } from "react-native-gesture-handler";
 import Animated, {
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -15,6 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { CANVAS } from "@/constants";
+import { checklistProgress, previewText } from "@/lib/blocks";
 import { formatDate } from "@/lib/format";
 import { useTheme, useThemedStyles, type Theme } from "@/theme";
 import type { Note } from "@/types";
@@ -65,6 +67,22 @@ const makeStyles = (t: Theme) =>
       marginBottom: 8,
     },
     meta: {
+      color: t.colors.meta,
+      fontFamily: t.fonts.body,
+      fontSize: 11,
+    },
+    fraction: {
+      ...StyleSheet.absoluteFill,
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+    },
+    fractionText: {
+      color: t.colors.ink,
+      fontFamily: t.fonts.title,
+      fontSize: 34,
+    },
+    fractionLabel: {
       color: t.colors.meta,
       fontFamily: t.fonts.body,
       fontSize: 11,
@@ -131,6 +149,29 @@ export function CanvasCard({
 
   const gesture = useCompetingGestures(drag, tap);
 
+  // Zoomed far out, a checklist card shows "2/5" instead of tiny lines of text.
+  const progress = checklistProgress(note.body);
+  const hasChecklist = progress !== null;
+  const fadeStart = CANVAS.FRACTION_SCALE - 0.1;
+  const textFade = useAnimatedStyle(() => ({
+    opacity: hasChecklist
+      ? interpolate(
+          scale.get(),
+          [fadeStart, CANVAS.FRACTION_SCALE],
+          [0, 1],
+          Extrapolation.CLAMP,
+        )
+      : 1,
+  }));
+  const fractionFade = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scale.get(),
+      [fadeStart, CANVAS.FRACTION_SCALE],
+      [1, 0],
+      Extrapolation.CLAMP,
+    ),
+  }));
+
   const animated = useAnimatedStyle(() => {
     const l = lift.get();
     return {
@@ -154,11 +195,21 @@ export function CanvasCard({
     <Animated.View style={[styles.card, animated]}>
       <GestureDetector gesture={gesture}>
         <View style={styles.inner}>
-          {note.title ? <Text style={styles.title}>{note.title}</Text> : null}
-          <Text style={styles.body} numberOfLines={4}>
-            {note.body}
-          </Text>
-          <Text style={styles.meta}>{metaLine(note, categoryName)}</Text>
+          <Animated.View style={textFade}>
+            {note.title ? <Text style={styles.title}>{note.title}</Text> : null}
+            <Text style={styles.body} numberOfLines={4}>
+              {previewText(note.body)}
+            </Text>
+            <Text style={styles.meta}>{metaLine(note, categoryName)}</Text>
+          </Animated.View>
+          {progress ? (
+            <Animated.View style={[styles.fraction, fractionFade]}>
+              <Text style={styles.fractionText}>
+                {progress.done}/{progress.total}
+              </Text>
+              <Text style={styles.fractionLabel}>done</Text>
+            </Animated.View>
+          ) : null}
         </View>
       </GestureDetector>
     </Animated.View>
