@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { formatDate } from "@/lib/format";
 import { useThemedStyles, type Theme } from "@/theme";
 import type { Note } from "@/types";
+import { previewText } from "@/lib/blocks";
 
 type Props = { note: Note; categoryName?: string };
 
@@ -57,7 +58,7 @@ export function NoteCard({ note, categoryName }: Props) {
     >
       {note.title ? <Text style={styles.title}>{note.title}</Text> : null}
       <Text style={styles.body} numberOfLines={3}>
-        {note.body}
+        {previewText(note.body)}
       </Text>
       <Text style={styles.meta}>{metaLine(note, categoryName)}</Text>
     </Pressable>
