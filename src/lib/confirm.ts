@@ -19,3 +19,10 @@ export function confirmDestructive(
     },
   ]);
 }
+
+export function confirmDiscard(onDiscard: () => void): void {
+  Alert.alert("Discard changes?", "Your edits to this note will be lost.", [
+    { text: "Keep editing", style: "cancel" },
+    { text: "Discard", style: "destructive", onPress: onDiscard },
+  ]);
+}

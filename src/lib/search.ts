@@ -1,4 +1,5 @@
 import type { Note, SortOrder } from "../types";
+import { plainText } from "./blocks";
 
 const WHITESPACE = /\s+/;
 
@@ -8,7 +9,7 @@ export function searchNotes(notes: Note[], query: string): Note[] {
   if (words.length === 0) return notes;
 
   return notes.filter((note) => {
-    const text = `${note.title ?? ""} ${note.body}`.toLowerCase();
+    const text = `${note.title ?? ""} ${plainText(note.body)}`.toLowerCase();
     return words.some((word) => text.includes(word));
   });
 }
