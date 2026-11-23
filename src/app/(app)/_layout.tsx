@@ -6,6 +6,13 @@ import { NotesProvider } from "@/context/NotesContext";
 import { OnboardingProvider, useOnboarding } from "@/context/OnboardingContext";
 import { useTheme } from "@/theme";
 
+// The editor draws its own zoom animation over the desk, so the stack adds none.
+const ZOOM_PAGE = {
+  headerShown: false,
+  presentation: "transparentModal",
+  animation: "none",
+} as const;
+
 function AppNavigator() {
   const { status } = useOnboarding();
   const { colors, fonts } = useTheme();
@@ -38,6 +45,8 @@ function AppNavigator() {
         <Stack.Screen name="category/[id]" options={{ title: "Category" }} />
         <Stack.Screen name="note/new" options={{ headerShown: false }} />
         <Stack.Screen name="note/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="note/new" options={ZOOM_PAGE} />
+        <Stack.Screen name="note/[id]" options={ZOOM_PAGE} />
       </Stack.Protected>
     </Stack>
   );
